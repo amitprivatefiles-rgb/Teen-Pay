@@ -45,33 +45,12 @@ export const CompanyUserManagement: React.FC<CompanyUserManagementProps> = ({ on
     e.preventDefault();
 
     try {
-      
-
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-company-user`;
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          companyId: formData.companyId,
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+      await api.post('/company-users', {
+        companyId: formData.companyId,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create company user');
-      }
 
       setFormData({
         companyId: '',
@@ -93,31 +72,7 @@ export const CompanyUserManagement: React.FC<CompanyUserManagementProps> = ({ on
     if (!confirm(`Are you sure you want to delete ${companyUser.name}?`)) return;
 
     try {
-      
-
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-company-user`;
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          company_user_id: companyUser.id,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete company user');
-      }
-
+      await api.delete(`/company-users/${companyUser._id || companyUser.id}`);
       loadData();
       onStatsUpdate();
     } catch (err: any) {
@@ -178,7 +133,7 @@ export const CompanyUserManagement: React.FC<CompanyUserManagementProps> = ({ on
               >
                 <option value="">Select a company</option>
                 {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
+                  <option key={company._id} value={company._id}>
                     {company.name}
                   </option>
                 ))}
@@ -233,7 +188,7 @@ export const CompanyUserManagement: React.FC<CompanyUserManagementProps> = ({ on
 
       <div className="grid gap-4">
         {companyUsers.map((companyUser) => (
-          <Card key={companyUser.id} className="p-6">
+          <Card key={companyUser._id} className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">

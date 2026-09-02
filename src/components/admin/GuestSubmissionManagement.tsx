@@ -31,7 +31,7 @@ export const GuestSubmissionManagement: React.FC<GuestSubmissionManagementProps>
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      let url = `/guest-submissions?page=${page}&limit=${PAGE_SIZE}`;
+      let url = `/guest-submissions?page=${page + 1}&limit=${PAGE_SIZE}`;
       if (statusFilter !== 'all') {
         url += `&status=${statusFilter}`;
       }
