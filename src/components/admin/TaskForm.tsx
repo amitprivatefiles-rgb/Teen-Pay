@@ -337,7 +337,7 @@ setCompanies(data || []);
               value={formData.maxUsers}
               onChange={handleChange}
               min="1"
-              max="100"
+              max="1000000"
               required
             />
             <p className="text-xs text-gray-500 mt-1">
