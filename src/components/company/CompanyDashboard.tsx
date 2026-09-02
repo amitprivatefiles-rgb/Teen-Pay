@@ -37,11 +37,8 @@ export const CompanyDashboard: React.FC<CompanyDashboardProps> = () => {
         return;
       }
 
-      const { data: companyUserData, error } = await supabase
-        .from('company_users')
-        .select('*, companies(*)')
-        .eq('authUserId', user.id)
-        .maybeSingle();
+      const companyUsers = await api.get('/company-users?authUserId=' + user.id);
+      const companyUserData = companyUsers?.[0];
 if (!companyUserData) {
         signOut();
         window.location.href = '/company/login';
@@ -63,24 +60,11 @@ if (!companyUserData) {
     try {
       console.log('[CompanyDashboard] Loading stats for company:', companyUser.companyId);
 
-      const { data: tasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('id, active, completed')
-        .eq('companyId', companyUser.companyId);
+      const tasks = await api.get(`/tasks?companyId=${companyUser.companyId}`);
+      console.log('[CompanyDashboard] Tasks:', tasks);
 
-      console.log('[CompanyDashboard] Tasks:', tasks, 'Error:', tasksError);
-
-      if (tasksError) throw tasksError;
-
-      // Query submissions directly by companyId instead of taskId
-      const { data: allSubmissions, error: allSubmissionsError } = await supabase
-        .from('task_submissions')
-        .select('id, status')
-        .eq('companyId', companyUser.companyId);
-
-      console.log('[CompanyDashboard] All submissions:', allSubmissions, 'Error:', allSubmissionsError);
-
-      if (allSubmissionsError) throw allSubmissionsError;
+      const allSubmissions = await api.get(`/submissions?companyId=${companyUser.companyId}`);
+      console.log('[CompanyDashboard] All submissions:', allSubmissions);
 
       // Count pending/under_review submissions
       const pendingCount = allSubmissions?.filter(

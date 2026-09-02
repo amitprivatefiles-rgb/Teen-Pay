@@ -29,17 +29,11 @@ export const CompanyUserManagement: React.FC<CompanyUserManagementProps> = ({ on
     try {
       const [companiesRes, companyUsersRes] = await Promise.all([
         api.get('/companies'),
-        supabase
-          .from('company_users')
-          .select('*, companies(name)')
-          .order('createdAt', { ascending: false }),
+        api.get('/company-users'),
       ]);
 
-      if (companiesRes.error) throw companiesRes.error;
-      if (companyUsersRes.error) throw companyUsersRes.error;
-
-      setCompanies(companiesRes.data || []);
-      setCompanyUsers(companyUsersRes.data || []);
+      setCompanies(companiesRes || []);
+      setCompanyUsers(companyUsersRes || []);
     } catch (err) {
       console.error('Error loading data:', err);
     } finally {

@@ -23,13 +23,8 @@ export const CompanyLoginPage: React.FC = () => {
 
       if (authError) throw authError;
 
-      const { data: companyUser, error: companyUserError } = await supabase
-        .from('company_users')
-        .select('*, companies(*)')
-        .eq('authUserId', authData.user.id)
-        .maybeSingle();
-
-      if (companyUserError) throw companyUserError;
+      const companyUsers = await api.get('/company-users?authUserId=' + authData.user.id);
+      const companyUser = companyUsers?.[0];
 
       if (!companyUser) {
         

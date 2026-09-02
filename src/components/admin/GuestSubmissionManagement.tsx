@@ -31,21 +31,12 @@ export const GuestSubmissionManagement: React.FC<GuestSubmissionManagementProps>
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('guest_task_submissions')
-        .select(`
-          *,
-          tasks(title, rewardAmount, platform, taskType)
-        `)
-        .order('submittedAt', { ascending: false })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-
+      let url = `/guest-submissions?page=${page}&limit=${PAGE_SIZE}`;
       if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+        url += `&status=${statusFilter}`;
       }
-
-      const { data, error } = await query;
-setSubmissions(data || []);
+      const data = await api.get(url);
+      setSubmissions(data || []);
       setHasMore((data || []).length === PAGE_SIZE);
     } catch (err) {
       console.error('Error fetching guest submissions:', err);
@@ -62,41 +53,10 @@ setSubmissions(data || []);
       
 
       // 1. Approve the guest submission
-      const { error: updateError } = await supabase
-        .from('guest_task_submissions')
-        .update({
-          status: 'approved',
-          reviewedAt: new Date().toISOString(),
-          reviewedBy: user?.id,
-          adminNotes: adminNotes || null,
-        })
-        .eq('id', submission.id);
-
-      if (updateError) throw updateError;
-
-      // 2. Check if a user account exists with this email
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id, totalEarnings')
-        .eq('email', submission.guestEmail)
-        .single();
-
-      if (existingProfile) {
-        // Credit immediately
-        const newEarnings = (existingProfile.totalEarnings || 0) + submission.rewardAmount;
-        await supabase
-          .from('profiles')
-          .update({ totalEarnings: newEarnings })
-          .eq('id', existingProfile.id);
-
-        await supabase
-          .from('guest_task_submissions')
-          .update({
-            creditedToUserId: existingProfile.id,
-            creditedAt: new Date().toISOString(),
-          })
-          .eq('id', submission.id);
-      }
+      await api.put(`/guest-submissions/${submission.id || submission._id}`, {
+        status: 'approved',
+        adminNotes: adminNotes || null
+      });
       // If no profile exists, rewards will be credited on signup via trigger
 
       setInspectingSubmission(null);
@@ -125,15 +85,10 @@ setSubmissions(data || []);
     try {
       
 
-      const { error } = await supabase
-        .from('guest_task_submissions')
-        .update({
-          status: 'rejected',
-          reviewedAt: new Date().toISOString(),
-          reviewedBy: user?.id,
-          adminNotes: reason,
-        })
-        .eq('id', submission.id);
+      await api.put(`/guest-submissions/${submission.id || submission._id}`, {
+        status: 'rejected',
+        adminNotes: reason,
+      });
 setInspectingSubmission(null);
       setAdminNotes('');
       fetchSubmissions();

@@ -23,15 +23,8 @@ export const PendingTasks: React.FC<PendingTasksProps> = ({ userProfile, onUpdat
 
   const fetchPendingSubmissions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('task_submissions')
-        .select(`
-          *,
-          tasks(title, rewardAmount, googleProfileLink, reviewText, starRating)
-        `)
-        .eq('userId', userProfile.id)
-        .order('submittedAt', { ascending: false });
-setPendingSubmissions(data || []);
+      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}`);
+      setPendingSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching pending submissions:', error);
     } finally {
@@ -43,11 +36,7 @@ setPendingSubmissions(data || []);
     if (!confirm(t('general.confirm'))) return;
 
     try {
-      const { error } = await supabase
-        .from('task_submissions')
-        .delete()
-        .eq('id', submissionId)
-        .eq('userId', userProfile.id); // Extra security check
+      await api.delete(`/submissions/${submissionId}`);
 fetchPendingSubmissions();
       onUpdate();
     } catch (error) {

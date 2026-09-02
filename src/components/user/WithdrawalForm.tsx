@@ -50,16 +50,12 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ userProfile, min
 
     try {
       // Create withdrawal request
-      const { error: withdrawalError } = await supabase
-        .from('withdrawals')
-        .insert({
-          userId: userProfile.id,
-          amount: withdrawalAmount,
-          upiId: upiId,
-          status: 'pending',
-        });
-
-      if (withdrawalError) throw withdrawalError;
+      await api.post('/withdrawals', {
+        userId: userProfile.id || userProfile._id,
+        amount: withdrawalAmount,
+        upiId: upiId,
+        status: 'pending',
+      });
 
       // Update user balance
       const balanceError = null; /* handled by backend */

@@ -129,25 +129,20 @@ setCompanies(data || []);
       }
 
       try {
-        const { data: createdTask, error: taskError } = await supabase
-          .from('tasks')
-          .insert({
-            title: task.title,
-            companyId: selectedCompanyId,
-            platform: 'google',
-            taskType: 'review',
-            taskLink: task.googleProfileLink,
-            googleProfileLink: task.googleProfileLink,
-            reviewText: task.reviewText,
-            starRating: task.starRating,
-            rewardAmount: task.task_price,
-            maxUsers: task.maxUsers,
-            active: true,
-            completed: false,
-          })
-          .select();
-
-        if (taskError) throw taskError;
+        await api.post('/tasks', {
+          title: task.title,
+          companyId: selectedCompanyId,
+          platform: 'google',
+          taskType: 'review',
+          taskLink: task.googleProfileLink,
+          googleProfileLink: task.googleProfileLink,
+          reviewText: task.reviewText,
+          starRating: task.starRating,
+          rewardAmount: task.task_price,
+          maxUsers: task.maxUsers,
+          active: true,
+          completed: false,
+        });
 
         results.push({ ...task, status: 'success' });
       } catch (error: any) {

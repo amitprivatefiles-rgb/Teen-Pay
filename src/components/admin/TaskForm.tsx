@@ -101,12 +101,7 @@ setCompanies(data || []);
         taskData.starRating = formData.starRating;
       }
 
-      const { data: createdTask, error: taskError } = await supabase
-        .from('tasks')
-        .insert(taskData)
-        .select();
-
-      if (taskError) throw taskError;
+      await api.post('/tasks', taskData);
 
       onTaskCreated();
     } catch (error: any) {

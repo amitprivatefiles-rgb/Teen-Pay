@@ -35,11 +35,8 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
 
   const fetchTaskSubmissions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('task_submissions')
-        .select('*')
-        .eq('userId', userProfile.id);
-setTaskSubmissions(data || []);
+      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}`);
+      setTaskSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching submissions:', error);
     } finally {
@@ -51,13 +48,7 @@ setTaskSubmissions(data || []);
     setLoading(true);
     try {
       // Get all active companies
-      const { data: activeCompanies, error: companiesError } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('active', true)
-        .order('name', { ascending: true });
-
-      if (companiesError) throw companiesError;
+      const activeCompanies = await api.get('/companies?active=true');
       
       // Show all active companies - let individual sections handle task filtering
       setCompanies(activeCompanies || []);
@@ -71,16 +62,8 @@ setTaskSubmissions(data || []);
 
   const fetchTaskHistory = async () => {
     try {
-      const { data, error } = await supabase
-        .from('task_submissions')
-        .select(`
-          *,
-          tasks(title, rewardAmount)
-        `)
-        .eq('userId', userProfile.id)
-        .eq('status', 'approved')
-        .order('submittedAt', { ascending: false });
-setTaskHistory(data || []);
+      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}&status=approved`);
+      setTaskHistory(data || []);
     } catch (error) {
       console.error('Error fetching history:', error);
     }

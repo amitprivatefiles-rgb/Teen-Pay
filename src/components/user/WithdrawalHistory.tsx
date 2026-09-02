@@ -32,12 +32,8 @@ export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({ userId }) 
 
   const fetchWithdrawals = async () => {
     try {
-      const { data, error } = await supabase
-        .from('withdrawals')
-        .select('*')
-        .eq('userId', userId)
-        .order('createdAt', { ascending: false });
-setWithdrawals(data || []);
+      const data = await api.get(`/withdrawals?userId=${userId}`);
+      setWithdrawals(data || []);
     } catch (error) {
       console.error('Error fetching withdrawals:', error);
     } finally {
