@@ -187,7 +187,7 @@ fetchTasks();
 
       <div className="grid gap-4">
         {tasks.map((task: any) => (
-          <Card key={task.id} className="p-6">
+          <Card key={task._id} className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
@@ -247,12 +247,12 @@ fetchTasks();
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/task/${task.id}`);
-                      setCopied(task.id);
+                      navigator.clipboard.writeText(`${window.location.origin}/task/${task._id}`);
+                      setCopied(task._id);
                       setTimeout(() => setCopied(null), 2000);
                     }}
                   >
-                    {copied === task.id ? '✓ Copied!' : 'Copy Link'}
+                    {copied === task._id ? '✓ Copied!' : 'Copy Link'}
                   </Button>
                 )}
                 <Button
@@ -266,7 +266,7 @@ fetchTasks();
                 <Button
                   size="sm"
                   variant="danger"
-                  onClick={() => handleDelete(task.id)}
+                  onClick={() => handleDelete(task._id)}
                   icon={Trash2}
                 >
                   Delete
