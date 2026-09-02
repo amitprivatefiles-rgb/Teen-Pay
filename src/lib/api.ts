@@ -33,14 +33,17 @@ class ApiClient {
     
     if (segments.length >= 2) {
       const base = segments[0]; // e.g., "companies", "auth", "admin"
-      // Skip auth routes (they use [...action] catch-all)
-      if (base !== 'auth' && base !== 'admin') {
+      // Skip admin routes (they have their own file structure)
+      if (base !== 'admin') {
         const sub = segments.slice(1);
         const params = new URLSearchParams(queryFromEndpoint);
-        if (sub.length === 1 && sub[0] !== 'check') {
-          params.set('id', sub[0]);
-        } else if (sub.length === 1 && sub[0] === 'check') {
-          params.set('action', 'check');
+        const actionNames = ['signup', 'login', 'company-login', 'me', 'check', 'suspend'];
+        if (sub.length === 1) {
+          if (actionNames.includes(sub[0])) {
+            params.set('action', sub[0]);
+          } else {
+            params.set('id', sub[0]);
+          }
         } else if (sub.length === 2) {
           params.set('id', sub[0]);
           params.set('action', sub[1]);
