@@ -4,6 +4,7 @@ import { connectDB } from '../_lib/mongodb';
 import { handleCors, requireAuth, generateToken } from '../_lib/auth';
 import User from '../_lib/models/User';
 import CompanyUser from '../_lib/models/CompanyUser';
+import Company from '../_lib/models/Company';
 import GuestTaskSubmission from '../_lib/models/GuestTaskSubmission';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

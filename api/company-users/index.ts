@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from '../_lib/mongodb';
 import { handleCors, requireAdmin } from '../_lib/auth';
 import CompanyUser from '../_lib/models/CompanyUser';
+import Company from '../_lib/models/Company';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
