@@ -8,6 +8,8 @@ import Company from '../_lib/models/Company';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
+  // Ensure Company model is registered for populate
+  void Company;
 
   const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
   const companyId = (Array.isArray(req.query.companyId) ? req.query.companyId[0] : req.query.companyId) as string | undefined;

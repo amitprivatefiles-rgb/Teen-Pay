@@ -10,6 +10,7 @@ import GuestTaskSubmission from '../_lib/models/GuestTaskSubmission';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
+  void Company;
 
   const { action } = req.query;
   const actionPath = Array.isArray(action) ? action[0] : action;
