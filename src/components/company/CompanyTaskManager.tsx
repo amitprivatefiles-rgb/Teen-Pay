@@ -35,15 +35,8 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
 
   const loadTasks = async () => {
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(`
-          *,
-          task_submissions(count)
-        `)
-        .eq('companyId', companyUser.companyId)
-        .order('createdAt', { ascending: false });
-setTasks(data || []);
+      const data = await api.get(`/tasks?companyId=${companyUser.companyId}`);
+      setTasks(data || []);
     } catch (err) {
       console.error('Error loading tasks:', err);
     } finally {
@@ -78,22 +71,19 @@ setTasks(data || []);
       }
 
       if (editingTask) {
-        const { error } = await supabase
-          .from('tasks')
-          .update({
-            ...taskData,
-            updatedAt: new Date().toISOString(),
-          })
-          .eq('id', editingTask.id);
-} else {
-        const { error } = await api.post('/tasks', {
-            ...taskData,
-            companyId: companyUser.companyId,
-            created_by_company_user: companyUser.id,
-            active: true,
-            completed: false,
-          });
-}
+        await api.put(`/tasks/${editingTask.id || editingTask._id}`, {
+          ...taskData,
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        await api.post('/tasks', {
+          ...taskData,
+          companyId: companyUser.companyId,
+          created_by_company_user: companyUser.id || companyUser._id,
+          active: true,
+          completed: false,
+        });
+      }
 
       resetForm();
       loadTasks();

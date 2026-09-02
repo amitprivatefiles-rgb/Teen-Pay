@@ -40,7 +40,7 @@ setCompanies(data || []);
     
     try {
       if (editingCompany) {
-        await api.put(`/companies/${editingCompany.id}`, formData);
+        await api.put(`/companies/${editingCompany._id || editingCompany.id}`, formData);
 } else {
         await api.post('/companies', { ...formData, active: true });
 }
@@ -64,13 +64,10 @@ setCompanies(data || []);
     if (!confirm('Are you sure you want to delete this company? This will also delete all associated tasks.')) return;
 
     try {
-      const { error } = await supabase
-        .from('companies')
-        .delete()
-        .eq('id', companyId);
-fetchCompanies();
+      await api.delete(`/companies/${companyId}`);
+      fetchCompanies();
       onStatsUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting company:', error);
       alert('Error deleting company: ' + error.message);
     }
@@ -195,7 +192,7 @@ fetchCompanies();
 
       <div className="grid gap-4">
         {companies.map((company: any) => (
-          <Card key={company.id} className="p-6">
+          <Card key={company._id || company.id} className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-4 flex-1">
                 {company.logoUrl ? (
@@ -241,7 +238,7 @@ fetchCompanies();
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => toggleActive(company.id, company.active)}
+                  onClick={() => toggleActive(company._id || company.id, company.active)}
                   icon={company.active ? EyeOff : Eye}
                 >
                   {company.active ? 'Deactivate' : 'Activate'}
@@ -257,7 +254,7 @@ fetchCompanies();
                 <Button
                   size="sm"
                   variant="danger"
-                  onClick={() => handleDelete(company.id)}
+                  onClick={() => handleDelete(company._id || company.id)}
                   icon={Trash2}
                 >
                   Delete

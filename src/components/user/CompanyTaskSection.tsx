@@ -5,6 +5,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { TaskCard } from './TaskCard';
 import { Building, ChevronDown, ChevronUp, Star, MapPin, Instagram, Youtube, Smartphone, Vote } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface CompanyTaskSectionProps {
   company: any;
@@ -25,6 +26,7 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
   onTaskComplete,
   taskSubmissions
 }) => {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -74,9 +76,6 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
   const fetchCompanyTasks = async () => {
     setLoading(true);
     try {
-      // Get current user ID
-      
-      console.log('[CompanyTaskSection] User:', user?.id);
       if (!user) {
         console.log('[CompanyTaskSection] No user found');
         setTasks([]);
@@ -84,19 +83,7 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
       }
 
       // Check if user is suspended
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('suspended')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      console.log('[CompanyTaskSection] User profile:', userProfile, 'Error:', profileError);
-
-      if (profileError) {
-        console.error('[CompanyTaskSection] Error checking user profile:', profileError);
-        setTasks([]);
-        return;
-      }
+      const { user: userProfile } = await api.get('/auth/me');
 
       if (userProfile?.suspended) {
         console.log('[CompanyTaskSection] User is suspended');
@@ -105,43 +92,15 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
       }
 
       // Get all active tasks for this company
-      console.log('[CompanyTaskSection] Fetching tasks for company:', company.id, company.name);
-      const { data: companyTasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('companyId', company.id)
-        .eq('active', true)
-        .eq('completed', false)
-        .order('createdAt', { ascending: false });
-
-      console.log('[CompanyTaskSection] Company tasks:', companyTasks, 'Error:', tasksError);
-
-      if (tasksError) {
-        console.error('[CompanyTaskSection] Error fetching tasks:', tasksError);
-        throw tasksError;
-      }
-
+      const companyTasks = await api.get(`/tasks?companyId=${company._id || company.id}`);
+      
       if (!companyTasks || companyTasks.length === 0) {
-        console.log('[CompanyTaskSection] No tasks found for company');
         setTasks([]);
         setTaskCount(0);
         return;
       }
 
-      // Check which company + platform + taskType combinations user has already submitted for
-      // One task per company per platform per taskType per user rule
-      console.log('[CompanyTaskSection] Checking user submissions for all company/platform/taskType combinations');
-      const { data: userSubmissions, error: submissionsError } = await supabase
-        .from('task_submissions')
-        .select('companyId, platform, taskType')
-        .eq('userId', user.id);
-
-      console.log('[CompanyTaskSection] User submissions:', userSubmissions, 'Error:', submissionsError);
-
-      if (submissionsError) {
-        console.error('[CompanyTaskSection] Error checking submissions:', submissionsError);
-        throw submissionsError;
-      }
+      const userSubmissions = await api.get('/submissions');
 
       // Create a set of companyId+platform+taskType combinations user has already submitted for
       const submittedCombinations = new Set(

@@ -38,24 +38,12 @@ export const GuestTaskPage: React.FC<GuestTaskPageProps> = ({ taskId, onNavigate
     setLoading(true);
     setError('');
     try {
-      const { data: taskData, error: taskError } = await supabase
-        .from('tasks')
-        .select('*, companies(id, name, logoUrl, description)')
-        .eq('id', taskId)
-        .eq('active', true)
-        .eq('shareable', true)
-        .single();
-
-      if (taskError || !taskData) {
-        setError('This task is not available or the link has expired.');
-        return;
-      }
-
+      const taskData = await api.get(`/tasks/${taskId}`);
       setTask(taskData);
-      setCompany(taskData.companies);
+      setCompany(taskData.companyId); // Mongoose populate returns the company object
     } catch (err) {
       console.error('Error fetching task:', err);
-      setError('Failed to load task. Please try again.');
+      setError('This task is not available or the link has expired.');
     } finally {
       setLoading(false);
     }
@@ -63,14 +51,9 @@ export const GuestTaskPage: React.FC<GuestTaskPageProps> = ({ taskId, onNavigate
 
   const checkExistingSubmission = async (emailToCheck: string) => {
     try {
-      const { data } = await supabase
-        .from('guest_task_submissions')
-        .select('status')
-        .eq('taskId', taskId)
-        .eq('guestEmail', emailToCheck.toLowerCase().trim())
-        .single();
+      const data = await api.get(`/guest-submissions/check?taskId=${taskId}&email=${encodeURIComponent(emailToCheck.toLowerCase().trim())}`);
 
-      if (data) {
+      if (data.exists) {
         setAlreadySubmitted(true);
         setExistingStatus(data.status);
         return true;
@@ -137,32 +120,21 @@ export const GuestTaskPage: React.FC<GuestTaskPageProps> = ({ taskId, onNavigate
     }
 
     try {
-      const { error: insertError } = await supabase
-        .from('guest_task_submissions')
-        .insert({
-          taskId: taskId,
-          companyId: task.companyId,
-          guestEmail: normalizedEmail,
-          platform: task.platform,
-          taskType: task.taskType,
-          screenshotUrl: screenshotPreview,
-          rewardAmount: task.rewardAmount,
-          status: 'pending',
-        });
+      await api.post('/guest-submissions', {
+        taskId,
+        guestEmail: normalizedEmail,
+        screenshotUrl: screenshotPreview
+      });
 
-      if (insertError) {
-        if (insertError.code === '23505') {
-          setAlreadySubmitted(true);
-          setExistingStatus('pending');
-        } else {
-          throw insertError;
-        }
-      } else {
-        setSubmitted(true);
-      }
+      setSubmitted(true);
     } catch (err: any) {
-      console.error('Error submitting:', err);
-      setSubmitError(err.message || 'Failed to submit. Please try again.');
+      if (err.message && err.message.includes('Duplicate')) {
+        setAlreadySubmitted(true);
+        setExistingStatus('pending');
+      } else {
+        console.error('Error submitting:', err);
+        setSubmitError(err.message || 'Failed to submit. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
