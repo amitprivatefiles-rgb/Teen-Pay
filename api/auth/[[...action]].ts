@@ -67,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const isMatch = await bcrypt.compare(password, companyUser.passwordHash);
       if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-      const token = generateToken({ id: companyUser._id, role: 'company' } as any);
+      const token = generateToken({ _id: companyUser._id, role: 'company' } as any);
       const userObj = companyUser.toObject();
       delete userObj.passwordHash;
       return res.status(200).json({ token, user: userObj });
@@ -78,13 +78,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!authUser) return;
 
       if (authUser.role === 'company') {
-        const companyUser = await CompanyUser.findById(authUser.id).populate('companyId');
+        const companyUser = await CompanyUser.findById(authUser._id).populate('companyId');
         if (!companyUser) return res.status(404).json({ error: 'User not found' });
         const userObj = companyUser.toObject();
         delete userObj.passwordHash;
         return res.status(200).json({ user: userObj });
       } else {
-        const user = await User.findById(authUser.id);
+        const user = await User.findById(authUser._id);
         if (!user) return res.status(404).json({ error: 'User not found' });
         const userObj = user.toObject();
         delete userObj.passwordHash;

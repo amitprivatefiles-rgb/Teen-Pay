@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { connectDB } from '../_lib/mongodb';
 import { handleCors, requireAuth } from '../_lib/auth';
-import { TaskSubmission } from '../_models/TaskSubmission';
-import { User } from '../_models/User';
-import { Task } from '../_models/Task';
+import TaskSubmission from '../_lib/models/TaskSubmission';
+import User from '../_lib/models/User';
+import Task from '../_lib/models/Task';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;

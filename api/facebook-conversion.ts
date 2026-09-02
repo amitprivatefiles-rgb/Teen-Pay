@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectDB } from '../_lib/mongodb';
-import { handleCors } from '../_lib/auth';
+import { connectDB } from './_lib/mongodb';
+import { handleCors } from './_lib/auth';
 import crypto from 'crypto';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

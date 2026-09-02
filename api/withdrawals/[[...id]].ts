@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { connectDB } from '../_lib/mongodb';
 import { handleCors, requireAuth, requireAdmin } from '../_lib/auth';
-import { Withdrawal } from '../_models/Withdrawal';
-import { User } from '../_models/User';
+import Withdrawal from '../_lib/models/Withdrawal';
+import User from '../_lib/models/User';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
@@ -35,7 +35,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         const { amount, upiId } = req.body;
         
-        if (user.totalEarnings < amount || amount < 100) {
+        const dbUser = await User.findById(user._id);
+        if (!dbUser || dbUser.totalEarnings < amount || amount < 100) {
           return res.status(400).json({ error: 'Invalid amount' });
         }
         
