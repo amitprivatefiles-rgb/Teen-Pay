@@ -155,12 +155,12 @@ export const WithdrawalManagement: React.FC<WithdrawalManagementProps> = ({ onSt
                     <div className="space-y-2">
                       <Button
                         size="sm"
-                        onClick={() => handleStatusUpdate(withdrawal.id, 'completed')}
+                        onClick={() => handleStatusUpdate(withdrawal._id || withdrawal.id, 'completed')}
                         icon={CheckCircle}
                         className="w-full"
-                        disabled={processingId === withdrawal.id}
+                        disabled={processingId === (withdrawal._id || withdrawal.id)}
                       >
-                        {processingId === withdrawal.id ? 'Processing...' : 'Approve & Pay'}
+                        {processingId === (withdrawal._id || withdrawal.id) ? 'Processing...' : 'Approve & Pay'}
                       </Button>
                       <Button
                         size="sm"
@@ -168,14 +168,14 @@ export const WithdrawalManagement: React.FC<WithdrawalManagementProps> = ({ onSt
                         onClick={() => {
                           if (processingId) return;
                           if (confirm('Reject this withdrawal request? The amount will be refunded to user\'s account.')) {
-                            handleStatusUpdate(withdrawal.id, 'rejected');
+                            handleStatusUpdate(withdrawal._id || withdrawal.id, 'rejected');
                           }
                         }}
                         icon={XCircle}
                         className="w-full"
-                        disabled={processingId === withdrawal.id}
+                        disabled={processingId === (withdrawal._id || withdrawal.id)}
                       >
-                        {processingId === withdrawal.id ? 'Processing...' : 'Reject & Refund'}
+                        {processingId === (withdrawal._id || withdrawal.id) ? 'Processing...' : 'Reject & Refund'}
                       </Button>
                     </div>
                   )}

@@ -35,7 +35,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
 
   const fetchTaskSubmissions = async () => {
     try {
-      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}`);
+      const data = await api.get(`/submissions?userId=${userProfile._id || userProfile.id}`);
       setTaskSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching submissions:', error);
@@ -62,7 +62,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
 
   const fetchTaskHistory = async () => {
     try {
-      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}&status=approved`);
+      const data = await api.get(`/submissions?userId=${userProfile._id || userProfile.id}&status=approved`);
       setTaskHistory(data || []);
     } catch (error) {
       console.error('Error fetching history:', error);
@@ -360,7 +360,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
             <div className="space-y-3 sm:space-y-6">
               {companies.map((company) => (
                 <CompanyTaskSection
-                  key={company.id}
+                  key={company._id || company.id}
                   company={company}
                   onTaskComplete={handleTaskSubmit}
                   taskSubmissions={taskSubmissions}
@@ -389,7 +389,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
             minAmount={50}
             onWithdrawalSuccess={onProfileUpdate}
           />
-          <WithdrawalHistory userId={userProfile.id} />
+          <WithdrawalHistory userId={userProfile._id || userProfile.id} />
         </div>
       )}
 

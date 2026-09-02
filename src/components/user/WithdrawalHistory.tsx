@@ -119,7 +119,7 @@ export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({ userId }) 
           {withdrawals.map((withdrawal: any) => {
             const statusDisplay = getStatusDisplay(withdrawal.status);
             return (
-              <Card key={withdrawal.id} className="p-6">
+              <Card key={withdrawal._id || withdrawal.id} className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-3">

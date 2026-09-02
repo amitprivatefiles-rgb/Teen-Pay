@@ -62,12 +62,12 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskComplete, taskS
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tasks.map((task) => {
-          const userSubmission = taskSubmissions.find(sub => sub.taskId === task.id);
+          const userSubmission = taskSubmissions.find(sub => sub.taskId === (task._id || task.id));
           return (
             <TaskCard
-              key={task.id}
+              key={task._id || task.id}
               task={task}
-              onComplete={() => onTaskComplete(task.id)}
+              onComplete={() => onTaskComplete(task._id || task.id)}
               userSubmission={userSubmission}
             />
           );

@@ -37,7 +37,7 @@ export const TaskHistory: React.FC<TaskHistoryProps> = ({ history }) => {
 
       <div className="space-y-4">
         {history.map((completion) => (
-          <Card key={completion.id} className="p-6">
+          <Card key={completion._id || completion.id} className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-1">

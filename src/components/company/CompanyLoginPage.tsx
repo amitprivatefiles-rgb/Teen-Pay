@@ -23,7 +23,7 @@ export const CompanyLoginPage: React.FC = () => {
 
       if (authError) throw authError;
 
-      const companyUsers = await api.get('/company-users?authUserId=' + authData.user.id);
+      const companyUsers = await api.get('/company-users?authUserId=' + (authData.user._id || authData.user.id));
       const companyUser = companyUsers?.[0];
 
       if (!companyUser) {

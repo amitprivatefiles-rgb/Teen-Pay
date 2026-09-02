@@ -71,7 +71,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
       }
 
       if (editingTask) {
-        await api.put(`/tasks/${editingTask.id || editingTask._id}`, {
+        await api.put(`/tasks/${editingTask._id || editingTask.id}`, {
           ...taskData,
           updatedAt: new Date().toISOString(),
         });
@@ -79,7 +79,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
         await api.post('/tasks', {
           ...taskData,
           companyId: companyUser.companyId,
-          created_by_company_user: companyUser.id || companyUser._id,
+          createdByCompanyUser: companyUser._id || companyUser.id,
           active: true,
           completed: false,
         });
@@ -331,7 +331,7 @@ loadTasks();
 
       <div className="grid gap-4">
         {tasks.map((task) => (
-          <Card key={task.id} className="p-6">
+          <Card key={task._id || task.id} className="p-6">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
@@ -385,20 +385,20 @@ loadTasks();
                   <Button
                     size="sm"
                     variant="outline"
-                    icon={copied === task.id ? Check : Share2}
+                    icon={copied === (task._id || task.id) ? Check : Share2}
                     onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/task/${task.id}`);
-                      setCopied(task.id);
+                      navigator.clipboard.writeText(`${window.location.origin}/task/${task._id || task.id}`);
+                      setCopied(task._id || task.id);
                       setTimeout(() => setCopied(null), 2000);
                     }}
                   >
-                    {copied === task.id ? 'Copied!' : 'Share Link'}
+                    {copied === (task._id || task.id) ? 'Copied!' : 'Share Link'}
                   </Button>
                 )}
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => toggleActive(task.id, task.active)}
+                  onClick={() => toggleActive(task._id || task.id, task.active)}
                   icon={task.active ? EyeOff : Eye}
                 >
                   {task.active ? 'Deactivate' : 'Activate'}
@@ -414,7 +414,7 @@ loadTasks();
                 <Button
                   size="sm"
                   variant="danger"
-                  onClick={() => handleDelete(task.id)}
+                  onClick={() => handleDelete(task._id || task.id)}
                   icon={Trash2}
                 >
                   Delete

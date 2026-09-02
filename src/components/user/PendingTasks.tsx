@@ -19,11 +19,11 @@ export const PendingTasks: React.FC<PendingTasksProps> = ({ userProfile, onUpdat
 
   useEffect(() => {
     fetchPendingSubmissions();
-  }, [userProfile.id]);
+  }, [userProfile._id || userProfile.id]);
 
   const fetchPendingSubmissions = async () => {
     try {
-      const data = await api.get(`/submissions?userId=${userProfile.id || userProfile._id}`);
+      const data = await api.get(`/submissions?userId=${userProfile._id || userProfile.id}`);
       setPendingSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching pending submissions:', error);
@@ -124,8 +124,8 @@ fetchPendingSubmissions();
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {pendingSubmissions.map((submission) => (
-          <Card key={submission.id} className="p-6">
-            {editingSubmission?.id === submission.id ? (
+          <Card key={submission._id || submission.id} className="p-6">
+            {(editingSubmission?._id || editingSubmission?.id) === (submission._id || submission.id) ? (
               <TaskSubmissionForm
                 task={submission.tasks}
                 onSubmit={() => {
@@ -230,7 +230,7 @@ fetchPendingSubmissions();
                       size="sm"
                       variant="danger"
                       type="button"
-                      onClick={() => handleDeleteSubmission(submission.id)}
+                      onClick={() => handleDeleteSubmission(submission._id || submission.id)}
                       icon={Trash2}
                       className="flex-1"
                     >

@@ -36,13 +36,13 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
 
   useEffect(() => {
     fetchCompanyTasks();
-  }, [company.id]);
+  }, [company._id || company.id]);
 
   useEffect(() => {
     if (expanded) {
       fetchCompanyTasks();
     }
-  }, [expanded, company.id]);
+  }, [expanded, company._id || company.id]);
 
   // Set up real-time subscription when expanded with debouncing
   useEffect(() => {
@@ -71,7 +71,7 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
       subscription.unsubscribe();
       clearInterval(pollInterval);
     };
-  }, [expanded, company.id]);
+  }, [expanded, company._id || company.id]);
 
   const fetchCompanyTasks = async () => {
     setLoading(true);
@@ -329,10 +329,10 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
             ) : (
               <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-4 lg:gap-6">
                 {filteredTasks.map((task) => {
-                  const userSubmission = taskSubmissions.find(sub => sub.taskId === task.id);
+                  const userSubmission = taskSubmissions.find(sub => sub.taskId === (task._id || task.id));
                   return (
                     <TaskCard
-                      key={task.id}
+                      key={task._id || task.id}
                       task={task}
                       onComplete={handleTaskComplete}
                       userSubmission={userSubmission}

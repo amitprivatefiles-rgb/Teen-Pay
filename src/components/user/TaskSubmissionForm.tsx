@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
 import { Upload, X, AlertCircle } from 'lucide-react';
@@ -17,6 +18,7 @@ export const TaskSubmissionForm: React.FC<TaskSubmissionFormProps> = ({
   onCancel,
   existingSubmission,
 }) => {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -67,7 +69,7 @@ export const TaskSubmissionForm: React.FC<TaskSubmissionFormProps> = ({
 
       // Upload screenshot to Supabase Storage
       const fileExt = screenshot.name.split('.').pop();
-      const fileName = `${user.id}/${task.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${user._id || user.id}/${task._id || task.id}/${Date.now()}.${fileExt}`;
       
       // Convert image to base64 for storage in database
       const reader = new FileReader();
@@ -90,7 +92,7 @@ export const TaskSubmissionForm: React.FC<TaskSubmissionFormProps> = ({
       
       if (existingSubmission) {
         // Update existing submission
-        await api.put(`/submissions/${existingSubmission.id || existingSubmission._id}`, {
+        await api.put(`/submissions/${existingSubmission._id || existingSubmission.id}`, {
             screenshotUrl: screenshotUrl,
             status: 'under_review',
             verificationDeadline: verificationDeadline.toISOString(),
@@ -102,8 +104,8 @@ export const TaskSubmissionForm: React.FC<TaskSubmissionFormProps> = ({
       } else {
         // Create new submission - this will make the task unavailable to all users
         await api.post('/submissions', {
-            userId: user.id,
-            taskId: task.id || task._id,
+            userId: user._id || user.id,
+            taskId: task._id || task.id,
             companyId: task.companyId?._id || task.companyId,
             platform: task.platform,
             taskType: task.taskType,

@@ -94,7 +94,7 @@ export const UserManagement: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {users.map((user: any) => (
-            <Card key={user.id} className="p-6">
+            <Card key={user._id || user.id} className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-4 mb-2">
@@ -156,8 +156,8 @@ export const UserManagement: React.FC = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleSuspendUser(user.id, false)}
-                        loading={suspendingUser === user.id}
+                        onClick={() => handleSuspendUser(user._id || user.id, false)}
+                        loading={suspendingUser === (user._id || user.id)}
                         icon={CheckCircle}
                         className="text-green-600 border-green-300 hover:bg-green-50"
                       >
@@ -167,8 +167,8 @@ export const UserManagement: React.FC = () => {
                       <Button
                         size="sm"
                         variant="danger"
-                        onClick={() => handleSuspendUser(user.id, true)}
-                        loading={suspendingUser === user.id}
+                        onClick={() => handleSuspendUser(user._id || user.id, true)}
+                        loading={suspendingUser === (user._id || user.id)}
                         icon={Ban}
                       >
                         Suspend

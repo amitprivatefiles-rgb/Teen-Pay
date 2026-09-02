@@ -51,7 +51,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({ userProfile, min
     try {
       // Create withdrawal request
       await api.post('/withdrawals', {
-        userId: userProfile.id || userProfile._id,
+        userId: userProfile._id || userProfile.id,
         amount: withdrawalAmount,
         upiId: upiId,
         status: 'pending',

@@ -37,7 +37,7 @@ export const CompanyDashboard: React.FC<CompanyDashboardProps> = () => {
         return;
       }
 
-      const companyUsers = await api.get('/company-users?authUserId=' + user.id);
+      const companyUsers = await api.get('/company-users?authUserId=' + (user._id || user.id));
       const companyUserData = companyUsers?.[0];
 if (!companyUserData) {
         signOut();

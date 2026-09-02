@@ -133,7 +133,7 @@ export const CompanyTaskProgress: React.FC<CompanyTaskProgressProps> = ({ compan
 
       <div className="grid gap-4">
         {submissions.map((submission) => (
-          <Card key={submission.id} className="p-6">
+          <Card key={submission._id || submission.id} className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-3">
@@ -186,7 +186,7 @@ export const CompanyTaskProgress: React.FC<CompanyTaskProgressProps> = ({ compan
               {(submission.status === 'pending' || submission.status === 'under_review') && (
                 <div className="flex flex-col space-y-2 ml-4">
                   <Button
-                    onClick={() => handleApprove(submission.id)}
+                    onClick={() => handleApprove(submission._id || submission.id)}
                     variant="primary"
                     icon={ThumbsUp}
                     size="sm"
@@ -195,7 +195,7 @@ export const CompanyTaskProgress: React.FC<CompanyTaskProgressProps> = ({ compan
                     Approve
                   </Button>
                   <Button
-                    onClick={() => handleReject(submission.id)}
+                    onClick={() => handleReject(submission._id || submission.id)}
                     variant="outline"
                     icon={ThumbsDown}
                     size="sm"
@@ -224,7 +224,7 @@ export const CompanyTaskProgress: React.FC<CompanyTaskProgressProps> = ({ compan
 
         {/* Guest Submissions */}
         {guestSubmissions.map((submission) => (
-          <Card key={submission.id} className="p-6">
+          <Card key={submission._id || submission.id} className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-3">
