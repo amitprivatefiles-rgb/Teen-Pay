@@ -1,0 +1,30 @@
+# Engagement Experts - Community Engagement Platform
+# Public pages are indexed, private user/admin dashboards are blocked
+
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /features
+Allow: /how-it-works
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+# Block all private/authenticated pages
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /user
+Disallow: /company
+Disallow: /auth
+Disallow: /api
+Disallow: /withdrawal
+Disallow: /tasks
+Disallow: /earnings
+Disallow: /wallet
+Disallow: /rewards
+Disallow: /referral
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
