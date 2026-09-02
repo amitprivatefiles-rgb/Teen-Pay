@@ -8,8 +8,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
 
-  const queryId = req.query.id;
-  const id = Array.isArray(queryId) ? queryId[0] : queryId;
+  const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
 
   try {
     if (req.method === 'GET' && !id) {
@@ -45,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ success: true });
     }
 
-    return res.status(404).json({ error: 'Not found' });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });

@@ -9,12 +9,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
 
-  const { id } = req.query;
-  const submissionId = Array.isArray(id) ? id[0] : id;
+  const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
 
   try {
     if (req.method === 'GET') {
-      if (!submissionId) {
+      if (!id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
@@ -27,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (user.role === 'admin') {
           // All submissions
         } else if (user.role === 'company') {
-           if (req.query.companyId) filter.companyId = req.query.companyId;
+          if (req.query.companyId) filter.companyId = req.query.companyId;
         } else {
           filter.userId = user._id;
         }
@@ -40,9 +39,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .sort({ createdAt: -1 });
           
         return res.status(200).json(submissions);
+      } else {
+        const user = await requireAuth(req, res);
+        if (!user) return;
+
+        const submission = await TaskSubmission.findById(id)
+          .populate('userId', 'name email')
+          .populate('taskId', 'title rewardAmount');
+        if (!submission) return res.status(404).json({ error: 'Not found' });
+        return res.status(200).json(submission);
       }
     } else if (req.method === 'POST') {
-      if (!submissionId) {
+      if (!id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
@@ -56,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json(submission);
       }
     } else if (req.method === 'PUT') {
-      if (submissionId) {
+      if (id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         if (user.role !== 'admin' && user.role !== 'company') {
@@ -64,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         
         const { status, adminNotes } = req.body;
-        const submission = await TaskSubmission.findById(submissionId);
+        const submission = await TaskSubmission.findById(id);
         if (!submission) return res.status(404).json({ error: 'Not found' });
         
         submission.status = status;
@@ -83,18 +91,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json(submission);
       }
     } else if (req.method === 'DELETE') {
-      if (submissionId) {
+      if (id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
-        const submission = await TaskSubmission.findById(submissionId);
+        const submission = await TaskSubmission.findById(id);
         if (!submission) return res.status(404).json({ error: 'Not found' });
         
         if (submission.userId.toString() !== user._id.toString()) {
           return res.status(403).json({ error: 'Forbidden' });
         }
         
-        await TaskSubmission.findByIdAndDelete(submissionId);
+        await TaskSubmission.findByIdAndDelete(id);
         return res.status(200).json({ message: 'Deleted successfully' });
       }
     }

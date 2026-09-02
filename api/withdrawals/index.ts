@@ -8,12 +8,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
 
-  const { id } = req.query;
-  const withdrawalId = Array.isArray(id) ? id[0] : id;
+  const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
 
   try {
     if (req.method === 'GET') {
-      if (!withdrawalId) {
+      if (!id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
@@ -27,9 +26,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .sort({ createdAt: -1 });
           return res.status(200).json(withdrawals);
         }
+      } else {
+        const user = await requireAuth(req, res);
+        if (!user) return;
+        const withdrawal = await Withdrawal.findById(id).populate('userId', 'name email');
+        if (!withdrawal) return res.status(404).json({ error: 'Not found' });
+        if (user.role !== 'admin' && withdrawal.userId._id.toString() !== user._id.toString()) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        return res.status(200).json(withdrawal);
       }
     } else if (req.method === 'POST') {
-      if (!withdrawalId) {
+      if (!id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
@@ -55,16 +63,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json(withdrawal);
       }
     } else if (req.method === 'PUT') {
-      if (withdrawalId) {
+      if (id) {
         const user = await requireAdmin(req, res);
         if (!user) return;
         
         const { status } = req.body;
         if (status !== 'completed' && status !== 'rejected') {
-           return res.status(400).json({ error: 'Invalid status' });
+          return res.status(400).json({ error: 'Invalid status' });
         }
         
-        const withdrawal = await Withdrawal.findById(withdrawalId);
+        const withdrawal = await Withdrawal.findById(id);
         if (!withdrawal) return res.status(404).json({ error: 'Not found' });
         
         withdrawal.status = status;

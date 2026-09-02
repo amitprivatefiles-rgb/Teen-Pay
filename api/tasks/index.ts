@@ -8,27 +8,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
 
-  const { id } = req.query;
-  const taskId = Array.isArray(id) ? id[0] : id;
+  const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
+  const companyId = (Array.isArray(req.query.companyId) ? req.query.companyId[0] : req.query.companyId) as string | undefined;
 
   try {
     if (req.method === 'GET') {
-      if (!taskId) {
+      if (!id) {
         const user = await getAuthUser(req);
         if (!user) return res.status(401).json({ error: 'Unauthorized' });
         
         if (user.role === 'admin') {
-          const { companyId } = req.query;
           const filter = companyId ? { companyId } : {};
           const tasks = await Task.find(filter).populate('companyId').sort({ createdAt: -1 });
           return res.status(200).json(tasks);
+        } else if (user.role === 'company') {
+          const companyUser = await CompanyUser.findOne({ userId: user._id });
+          const filter: any = {};
+          if (companyUser) filter.companyId = companyUser.companyId;
+          else if (companyId) filter.companyId = companyId;
+          const tasks = await Task.find(filter).populate('companyId').sort({ createdAt: -1 });
+          return res.status(200).json(tasks);
         } else {
-          const tasks = await Task.find({ active: true });
+          const filter: any = { active: true };
+          if (companyId) filter.companyId = companyId;
+          const tasks = await Task.find(filter).populate('companyId').sort({ createdAt: -1 });
           return res.status(200).json(tasks);
         }
       } else {
         // Public (no auth)
-        const task = await Task.findById(taskId).populate('companyId');
+        const task = await Task.findById(id).populate('companyId');
         if (!task) return res.status(404).json({ error: 'Not found' });
         
         const user = await getAuthUser(req);
@@ -38,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json(task);
       }
     } else if (req.method === 'POST') {
-      if (!taskId) {
+      if (!id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
@@ -53,28 +61,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(201).json(task);
       }
     } else if (req.method === 'PUT') {
-      if (taskId) {
+      if (id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
-        const task = await Task.findByIdAndUpdate(taskId, req.body, { new: true });
+        const task = await Task.findByIdAndUpdate(id, req.body, { new: true });
+        if (!task) return res.status(404).json({ error: 'Not found' });
         return res.status(200).json(task);
       }
     } else if (req.method === 'PATCH') {
-      if (taskId) {
+      if (id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
         const { active } = req.body;
-        const task = await Task.findByIdAndUpdate(taskId, { active }, { new: true });
+        const task = await Task.findByIdAndUpdate(id, { active }, { new: true });
+        if (!task) return res.status(404).json({ error: 'Not found' });
         return res.status(200).json(task);
       }
     } else if (req.method === 'DELETE') {
-      if (taskId) {
+      if (id) {
         const user = await requireAuth(req, res);
         if (!user) return;
         
-        await Task.findByIdAndDelete(taskId);
+        const task = await Task.findByIdAndDelete(id);
+        if (!task) return res.status(404).json({ error: 'Not found' });
         return res.status(200).json({ message: 'Deleted successfully' });
       }
     }

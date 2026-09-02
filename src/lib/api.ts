@@ -23,7 +23,34 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    // Convert path-based IDs to query params for Vercel index.ts routes
+    // e.g., /companies/123 -> /companies?id=123
+    // e.g., /users/123/suspend -> /users?id=123&action=suspend
+    // e.g., /guest-submissions/check?taskId=x -> /guest-submissions?action=check&taskId=x
+    let url = `${API_BASE}${endpoint}`;
+    const segments = endpoint.split('?')[0].split('/').filter(Boolean);
+    const queryFromEndpoint = endpoint.includes('?') ? endpoint.split('?')[1] : '';
+    
+    if (segments.length >= 2) {
+      const base = segments[0]; // e.g., "companies", "auth", "admin"
+      // Skip auth routes (they use [...action] catch-all)
+      if (base !== 'auth' && base !== 'admin') {
+        const sub = segments.slice(1);
+        const params = new URLSearchParams(queryFromEndpoint);
+        if (sub.length === 1 && sub[0] !== 'check') {
+          params.set('id', sub[0]);
+        } else if (sub.length === 1 && sub[0] === 'check') {
+          params.set('action', 'check');
+        } else if (sub.length === 2) {
+          params.set('id', sub[0]);
+          params.set('action', sub[1]);
+        }
+        const qs = params.toString();
+        url = `${API_BASE}/${base}${qs ? '?' + qs : ''}`;
+      }
+    }
+
+    const response = await fetch(url, {
       ...options,
       headers,
     });
