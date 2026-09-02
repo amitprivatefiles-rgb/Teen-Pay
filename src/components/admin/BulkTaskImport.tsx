@@ -52,9 +52,7 @@ export const BulkTaskImport: React.FC<BulkTaskImportProps> = ({ onTasksImported,
   const fetchCompanies = async () => {
     try {
       const data = await api.get('/companies'); const error = null;
-
-      if (error) throw error;
-      setCompanies(data || []);
+setCompanies(data || []);
     } catch (error) {
       console.error('Error fetching companies:', error);
     }

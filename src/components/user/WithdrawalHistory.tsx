@@ -37,9 +37,7 @@ export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({ userId }) 
         .select('*')
         .eq('userId', userId)
         .order('createdAt', { ascending: false });
-
-      if (error) throw error;
-      setWithdrawals(data || []);
+setWithdrawals(data || []);
     } catch (error) {
       console.error('Error fetching withdrawals:', error);
     } finally {

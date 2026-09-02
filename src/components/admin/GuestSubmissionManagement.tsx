@@ -45,9 +45,7 @@ export const GuestSubmissionManagement: React.FC<GuestSubmissionManagementProps>
       }
 
       const { data, error } = await query;
-
-      if (error) throw error;
-      setSubmissions(data || []);
+setSubmissions(data || []);
       setHasMore((data || []).length === PAGE_SIZE);
     } catch (err) {
       console.error('Error fetching guest submissions:', err);
@@ -136,10 +134,7 @@ export const GuestSubmissionManagement: React.FC<GuestSubmissionManagementProps>
           adminNotes: reason,
         })
         .eq('id', submission.id);
-
-      if (error) throw error;
-
-      setInspectingSubmission(null);
+setInspectingSubmission(null);
       setAdminNotes('');
       fetchSubmissions();
       onStatsUpdate();

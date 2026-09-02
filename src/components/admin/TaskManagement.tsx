@@ -80,9 +80,7 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({ onStatsUpdate })
   const fetchTasks = async () => {
     try {
       const data = await api.get('/tasks');
-
-      if (error) throw error;
-      setTasks(data || []);
+setTasks(data || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     } finally {
@@ -96,15 +94,13 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({ onStatsUpdate })
     try {
       if (editingTask) {
         const { error } = await api.put(`/tasks/${editingTask.id}`, formData);
-        if (error) throw error;
-      } else {
+} else {
         const { error } = await api.post('/tasks', { 
             ...formData, 
             active: true, // Tasks are immediately available to users
             rewardAmount: parseFloat(formData.rewardAmount.toString())
           });
-        if (error) throw error;
-      }
+}
 
       setFormData({
         title: '',
@@ -128,9 +124,7 @@ export const TaskManagement: React.FC<TaskManagementProps> = ({ onStatsUpdate })
 
     try {
       const { error } = await api.delete(`/tasks/${taskId}`);
-
-      if (error) throw error;
-      fetchTasks();
+fetchTasks();
       onStatsUpdate();
     } catch (error) {
       console.error('Error deleting task:', error);

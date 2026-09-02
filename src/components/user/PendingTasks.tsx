@@ -31,9 +31,7 @@ export const PendingTasks: React.FC<PendingTasksProps> = ({ userProfile, onUpdat
         `)
         .eq('userId', userProfile.id)
         .order('submittedAt', { ascending: false });
-
-      if (error) throw error;
-      setPendingSubmissions(data || []);
+setPendingSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching pending submissions:', error);
     } finally {
@@ -50,10 +48,7 @@ export const PendingTasks: React.FC<PendingTasksProps> = ({ userProfile, onUpdat
         .delete()
         .eq('id', submissionId)
         .eq('userId', userProfile.id); // Extra security check
-
-      if (error) throw error;
-      
-      fetchPendingSubmissions();
+fetchPendingSubmissions();
       onUpdate();
     } catch (error) {
       console.error('Error deleting submission:', error);

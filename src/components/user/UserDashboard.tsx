@@ -39,9 +39,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
         .from('task_submissions')
         .select('*')
         .eq('userId', userProfile.id);
-
-      if (error) throw error;
-      setTaskSubmissions(data || []);
+setTaskSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching submissions:', error);
     } finally {
@@ -82,9 +80,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
         .eq('userId', userProfile.id)
         .eq('status', 'approved')
         .order('submittedAt', { ascending: false });
-
-      if (error) throw error;
-      setTaskHistory(data || []);
+setTaskHistory(data || []);
     } catch (error) {
       console.error('Error fetching history:', error);
     }

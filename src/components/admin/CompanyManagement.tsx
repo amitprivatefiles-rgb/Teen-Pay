@@ -27,9 +27,7 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ onStatsUpd
   const fetchCompanies = async () => {
     try {
       const data = await api.get('/companies');
-
-      if (error) throw error;
-      setCompanies(data || []);
+setCompanies(data || []);
     } catch (error) {
       console.error('Error fetching companies:', error);
     } finally {
@@ -43,11 +41,9 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ onStatsUpd
     try {
       if (editingCompany) {
         await api.put(`/companies/${editingCompany.id}`, formData);
-        if (error) throw error;
-      } else {
+} else {
         await api.post('/companies', { ...formData, active: true });
-        if (error) throw error;
-      }
+}
 
       setFormData({
         name: '',
@@ -72,9 +68,7 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ onStatsUpd
         .from('companies')
         .delete()
         .eq('id', companyId);
-
-      if (error) throw error;
-      fetchCompanies();
+fetchCompanies();
       onStatsUpdate();
     } catch (error) {
       console.error('Error deleting company:', error);
@@ -95,9 +89,7 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ onStatsUpd
   const toggleActive = async (companyId: string, currentStatus: boolean) => {
     try {
       await api.put(`/companies/${companyId}`, { active: !currentStatus });
-
-      if (error) throw error;
-      fetchCompanies();
+fetchCompanies();
       onStatsUpdate();
     } catch (error) {
       console.error('Error updating company status:', error);

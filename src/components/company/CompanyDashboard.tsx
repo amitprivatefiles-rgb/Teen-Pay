@@ -42,10 +42,7 @@ export const CompanyDashboard: React.FC<CompanyDashboardProps> = () => {
         .select('*, companies(*)')
         .eq('authUserId', user.id)
         .maybeSingle();
-
-      if (error) throw error;
-
-      if (!companyUserData) {
+if (!companyUserData) {
         signOut();
         window.location.href = '/company/login';
         return;

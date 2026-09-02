@@ -43,9 +43,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
         `)
         .eq('companyId', companyUser.companyId)
         .order('createdAt', { ascending: false });
-
-      if (error) throw error;
-      setTasks(data || []);
+setTasks(data || []);
     } catch (err) {
       console.error('Error loading tasks:', err);
     } finally {
@@ -87,9 +85,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
             updatedAt: new Date().toISOString(),
           })
           .eq('id', editingTask.id);
-
-        if (error) throw error;
-      } else {
+} else {
         const { error } = await api.post('/tasks', {
             ...taskData,
             companyId: companyUser.companyId,
@@ -97,9 +93,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
             active: true,
             completed: false,
           });
-
-        if (error) throw error;
-      }
+}
 
       resetForm();
       loadTasks();
@@ -149,9 +143,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
 
     try {
       const { error } = await api.delete(`/tasks/${taskId}`);
-
-      if (error) throw error;
-      loadTasks();
+loadTasks();
       onUpdate();
     } catch (err: any) {
       console.error('Error deleting task:', err);
@@ -162,9 +154,7 @@ export const CompanyTaskManager: React.FC<CompanyTaskManagerProps> = ({ companyU
   const toggleActive = async (taskId: string, currentStatus: boolean) => {
     try {
       const { error } = await api.put(`/tasks/${taskId}`, { active: !currentStatus });
-
-      if (error) throw error;
-      loadTasks();
+loadTasks();
       onUpdate();
     } catch (err) {
       console.error('Error toggling task status:', err);
