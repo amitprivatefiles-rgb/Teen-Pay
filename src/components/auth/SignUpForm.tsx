@@ -44,10 +44,10 @@ export const SignUpForm: React.FC = () => {
     }
 
     try {
-      await signUp(formData.email, formData.password, {
-        age: age,
-      });
-      
+      const result = await signUp(formData.email, formData.password, formData.name, age);
+      if (result?.error) {
+        setError(result.error);
+      }
       // Success - the user will be automatically logged in and redirected
     } catch (error: any) {
       console.error('Signup error:', error);
