@@ -37,7 +37,7 @@ class ApiClient {
       if (base !== 'admin') {
         const sub = segments.slice(1);
         const params = new URLSearchParams(queryFromEndpoint);
-        const actionNames = ['signup', 'login', 'company-login', 'me', 'check', 'suspend'];
+        const actionNames = ['signup', 'login', 'company-login', 'me', 'check', 'suspend', 'my'];
         if (sub.length === 1) {
           if (actionNames.includes(sub[0])) {
             params.set('action', sub[0]);

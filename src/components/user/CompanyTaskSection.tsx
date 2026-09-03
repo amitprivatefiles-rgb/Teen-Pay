@@ -101,18 +101,34 @@ export const CompanyTaskSection: React.FC<CompanyTaskSectionProps> = ({
       }
 
       const userSubmissions = await api.get('/submissions');
+      
+      // Also fetch guest submissions for this user
+      let guestSubs: any[] = [];
+      try {
+        guestSubs = await api.get('/guest-submissions/my') || [];
+      } catch (e) {
+        // ignore if no guest submissions
+      }
 
-      // Create a set of companyId+platform+taskType combinations user has already submitted for
-      const submittedCombinations = new Set(
-        (userSubmissions || []).map(sub => `${sub.companyId}:${sub.platform}:${sub.taskType}`)
-      );
+      // Create a set of task IDs already submitted (regular + guest)
+      const submittedTaskIds = new Set([
+        ...(userSubmissions || []).map((sub: any) => sub.taskId?._id || sub.taskId),
+        ...guestSubs.map((sub: any) => sub.taskId?._id || sub.taskId),
+      ]);
+
+      // Also track companyId+platform+taskType combinations
+      const submittedCombinations = new Set([
+        ...(userSubmissions || []).map((sub: any) => `${sub.companyId}:${sub.platform}:${sub.taskType}`),
+        ...guestSubs.map((sub: any) => `${sub.companyId || sub.taskId?.companyId}:${sub.platform}:${sub.taskType}`),
+      ]);
 
       console.log('[CompanyTaskSection] Submitted combinations:', Array.from(submittedCombinations));
 
-      // Filter out tasks with companyId+platform+taskType combinations user has already submitted for
-      const availableTasks = companyTasks.filter(task => {
-        const combination = `${task.companyId}:${task.platform}:${task.taskType}`;
-        return !submittedCombinations.has(combination);
+      // Filter out tasks user has already submitted for (by task ID or combination)
+      const availableTasks = companyTasks.filter((task: any) => {
+        const taskId = task._id || task.id;
+        const combination = `${task.companyId?._id || task.companyId}:${task.platform}:${task.taskType}`;
+        return !submittedTaskIds.has(taskId) && !submittedCombinations.has(combination);
       });
 
       console.log('[CompanyTaskSection] Available tasks after company+platform+taskType filter:', availableTasks.length);
