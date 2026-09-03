@@ -28,12 +28,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const newUser = new User({ email, passwordHash, name, role });
       await newUser.save();
 
-      const guestSubmissions = await GuestTaskSubmission.find({ email, status: 'approved', creditedToUserId: null });
+      // Link ALL guest submissions (pending, approved, rejected) to the new user
+      const allGuestSubmissions = await GuestTaskSubmission.find({ guestEmail: email });
       let totalGuestRewards = 0;
-      for (const sub of guestSubmissions) {
-        totalGuestRewards += sub.reward || 0;
+      for (const sub of allGuestSubmissions) {
         sub.creditedToUserId = newUser._id;
+        sub.creditedAt = new Date();
         await sub.save();
+        if (sub.status === 'approved') {
+          totalGuestRewards += sub.rewardAmount || 0;
+        }
       }
 
       if (totalGuestRewards > 0) {

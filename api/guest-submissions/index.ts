@@ -8,6 +8,8 @@ import User from '../_lib/models/User';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
   await connectDB();
+  void Task;
+  void User;
 
   const id = (Array.isArray(req.query.id) ? req.query.id[0] : req.query.id) as string | undefined;
   const action = (Array.isArray(req.query.action) ? req.query.action[0] : req.query.action) as string | undefined;
@@ -18,6 +20,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { taskId, email } = req.query;
         const existing = await GuestTaskSubmission.findOne({ taskId, guestEmail: email });
         return res.status(200).json({ exists: !!existing, status: existing?.status });
+      } else if (action === 'my') {
+        // Regular user fetching their own guest submissions
+        const user = await requireAuth(req, res);
+        if (!user) return;
+        const submissions = await GuestTaskSubmission.find({ guestEmail: user.email })
+          .populate('taskId')
+          .sort({ createdAt: -1 });
+        return res.status(200).json(submissions);
       } else if (!id) {
         const user = await requireAuth(req, res);
         if (!user || (user.role !== 'admin' && user.role !== 'company')) {

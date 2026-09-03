@@ -25,12 +25,14 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
   const [companies, setCompanies] = useState([]);
   const [taskHistory, setTaskHistory] = useState([]);
   const [taskSubmissions, setTaskSubmissions] = useState([]);
+  const [guestSubmissions, setGuestSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCompanies();
     fetchTaskHistory();
     fetchTaskSubmissions();
+    fetchGuestSubmissions();
   }, []);
 
   const fetchTaskSubmissions = async () => {
@@ -66,6 +68,15 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
       setTaskHistory(data || []);
     } catch (error) {
       console.error('Error fetching history:', error);
+    }
+  };
+
+  const fetchGuestSubmissions = async () => {
+    try {
+      const data = await api.get('/guest-submissions/my');
+      setGuestSubmissions(data || []);
+    } catch (error) {
+      console.error('Error fetching guest submissions:', error);
     }
   };
 
@@ -372,14 +383,57 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ userProfile, onPro
       )}
 
       {activeTab === 'pending' && (
-        <PendingTasks 
-          userProfile={userProfile}
-          onUpdate={handleTaskSubmit}
-        />
+        <div className="space-y-6">
+          <PendingTasks 
+            userProfile={userProfile}
+            onUpdate={handleTaskSubmit}
+          />
+          {guestSubmissions.filter(s => s.status === 'pending').length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Guest Task Submissions (Before Sign Up)</h3>
+              <div className="space-y-3">
+                {guestSubmissions.filter(s => s.status === 'pending').map((sub) => (
+                  <div key={sub._id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div>
+                      <p className="font-medium">{sub.taskId?.title || 'Task'}</p>
+                      <p className="text-sm text-gray-500">Submitted as: {sub.guestEmail}</p>
+                      <p className="text-sm text-gray-500">Platform: {sub.platform} • Type: {sub.taskType}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Under Review</span>
+                      <p className="text-sm font-medium text-green-600 mt-1">₹{sub.rewardAmount}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
       )}
 
       {activeTab === 'history' && (
-        <TaskHistory history={taskHistory} />
+        <div className="space-y-6">
+          <TaskHistory history={taskHistory} />
+          {guestSubmissions.filter(s => s.status === 'approved').length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Approved Guest Submissions</h3>
+              <div className="space-y-3">
+                {guestSubmissions.filter(s => s.status === 'approved').map((sub) => (
+                  <div key={sub._id} className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div>
+                      <p className="font-medium">{sub.taskId?.title || 'Task'}</p>
+                      <p className="text-sm text-gray-500">Submitted as guest: {sub.guestEmail}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Approved ✓</span>
+                      <p className="text-sm font-medium text-green-600 mt-1">₹{sub.rewardAmount}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
       )}
 
       {activeTab === 'withdraw' && (
